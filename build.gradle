@@ -1,0 +1,40 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    alias(libs.plugins.moddev)
+    alias(libs.plugins.mixinmcpdecompile)
+    id 'idea'
+}
+
+apply from: 'build-conventions.gradle'
+
+var neoforgeVersion = libs.versions.neoforge.get()
+var minecraftVersion = libs.versions.minecraft.get()
+var minecraftVersionRange = libs.versions.minecraftrange.get()
+var libVersion = libs.versions.libVersions.get()
+var libEscription = libs.versions.libEscription.get()
+var modId = libs.versions.libId.get()
+var modName = libs.versions.libName.get()
+var modLicense = libs.versions.modLicense.get()
+
+configureWrapper()
+configureProjectIdentity(neoforgeVersion, libs.versions.libGroupId.get())
+configureGeneratedResources('src/generated/resources')
+
+configureBase(modId)
+
+configureNeoForge(modId)
+
+configureModMetadata([
+            minecraft_version      : minecraftVersion,
+            minecraft_version_range: minecraftVersionRange,
+            neo_version            : neoforgeVersion,
+            mod_id                 : modId,
+            mod_name               : modName,
+            mod_license            : modLicense,
+            mod_version            : libVersion,
+            mod_description        : libEscription,
+            geckolib_version       : libs.versions.geckolib.get(),
+    ])
+
+configurePublishing()

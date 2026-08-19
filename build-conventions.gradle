@@ -1,0 +1,150 @@
+ext.configureJava = {
+    java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+}
+
+ext.configureRepositories = {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = uri('https://maven.neoforged.net/releases') }
+        maven { url = uri('https://maven.blamejared.com') }
+        maven { url = uri('https://api.modrinth.com/maven') }
+        maven { url = uri('https://maven.bawnorton.com/releases') }
+        maven { url = uri('https://modmaven.dev') }
+        maven { url = uri('https://maven.firstdark.dev/snapshots') }
+        maven {
+            name = 'GeckoLib'
+            url = uri('https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/')
+            content { includeGroup('com.geckolib') }
+        }
+    }
+}
+
+ext.configureRuntimeClasspath = {
+    configurations {
+        runtimeClasspath.extendsFrom localRuntime
+    }
+}
+
+ext.configureCommonDependencies = {
+    dependencies {
+        implementation(rootProject.libs.geckolib)
+        implementation(rootProject.libs.mixinsquared)
+        compileOnly(rootProject.libs.jeiapi)
+        runtimeOnly(rootProject.libs.jei)
+        compileOnly(rootProject.libs.jade)
+    }
+}
+
+ext.configureBase = { String archiveName ->
+    base {
+        archivesName = archiveName
+    }
+}
+
+ext.configureWrapper = {
+    tasks.withType(Wrapper).configureEach {
+        distributionType = Wrapper.DistributionType.BIN
+    }
+}
+
+ext.configureProjectIdentity = { String projectVersion, String projectGroup ->
+    version = projectVersion
+    group = projectGroup
+}
+
+ext.configureGeneratedResources = { String resourceDir ->
+    sourceSets.main.resources {
+        srcDir(resourceDir)
+        exclude('**/*.bbmodel')
+        exclude('**/*.zip')
+        exclude('src/generated/**/.cache')
+    }
+}
+
+ext.configurePublishing = {
+    publishing {
+        publications {
+            register('mavenJava', MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url "file://${project.projectDir}/repo"
+            }
+        }
+    }
+}
+
+ext.configureNeoForge = { String modId,
+                          String generatedResources = 'src/generated/resources',
+                          String existingResources = 'src/main/resources' ->
+    neoForge {
+        version = rootProject.libs.versions.neoforge.get()
+        runs {
+            client {
+                client()
+                systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            }
+            client2 {
+                client()
+                programArguments.addAll '--username', 'TestPlayer2'
+                systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            }
+            client3 {
+                client()
+                programArguments.addAll '--username', 'TestPlayer3'
+                systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            }
+            server {
+                server()
+                programArgument '--nogui'
+                systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            }
+            gameTestServer {
+                type = 'gameTestServer'
+                systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            }
+            data {
+                clientData()
+                programArguments.addAll '--mod', modId, '--all', '--output',
+                        file(generatedResources).getAbsolutePath(), '--existing',
+                        file(existingResources).getAbsolutePath()
+            }
+            configureEach {
+                systemProperty 'forge.logging.markers', 'REGISTRIES'
+                logLevel = org.slf4j.event.Level.DEBUG
+                jvmArguments.addAll('-Dterminal.ansi=true', '-XX:+IgnoreUnrecognizedVMOptions')
+            }
+        }
+        mods {
+            "${modId}" {
+                sourceSet(sourceSets.main)
+            }
+        }
+    }
+}
+
+ext.configureModMetadata = { Map metadata, String templateDir = 'src/main/templates' ->
+    def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+        inputs.properties metadata
+        expand metadata
+        from templateDir
+        into 'build/generated/sources/modMetadata'
+    }
+    sourceSets.main.resources.srcDir generateModMetadata
+    neoForge.ideSyncTask generateModMetadata
+}
+
+ext.configureWildWindConventions = {
+    configureJava()
+    configureRepositories()
+    configureRuntimeClasspath()
+    configureCommonDependencies()
+}
+
+configureWildWindConventions()
