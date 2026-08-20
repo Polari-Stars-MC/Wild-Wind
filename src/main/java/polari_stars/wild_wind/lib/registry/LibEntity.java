@@ -16,7 +16,7 @@ public class LibEntity {
             EntityType.EntityFactory<T> factory,
             MobCategory category, UnaryOperator<EntityType.Builder<T>> builder
     ) {
-        var holder = register.registerEntityType(name, factory, category, builder);
+        DeferredHolder<EntityType<?>, EntityType<T>> holder = register.registerEntityType(name, factory, category, builder);
         LangHandler.addLangEnUsAndZhCnTxt(register.getNamespace(), enUs, zhCn,
                 (langSet, txt) -> langSet.entityTypeText(holder, txt));
         return holder;
