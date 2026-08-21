@@ -9,8 +9,8 @@ import polari_stars.wild_wind.lib.datagen.lang.LangHandler;
 
 import java.util.function.UnaryOperator;
 
-public class LibEntity {
-    public static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
+public interface LibEntityTypes {
+    static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
             DeferredRegister.Entities register,
             String name, String enUs, String zhCn,
             EntityType.EntityFactory<T> factory,
@@ -22,7 +22,7 @@ public class LibEntity {
         return holder;
     }
 
-    public static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
+    static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
             DeferredRegister.Entities register,
             String name, String enUs, String zhCn,
             EntityType.EntityFactory<T> factory, MobCategory category

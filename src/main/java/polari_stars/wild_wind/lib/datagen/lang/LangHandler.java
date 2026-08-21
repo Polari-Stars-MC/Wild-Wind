@@ -37,6 +37,16 @@ public class LangHandler {
         addLangTxt(register.getNamespace(), lang, txt, unaryOperator);
     }
 
+    public static String createTranslationKey(String namespace, String lang, String key) {
+        addLangTxt(namespace, lang, key, (langSet, txt) -> langSet.add(key, txt));
+        return key;
+    }
+
+    public static String createTranslationKeyEnUsAndZhCn(String namespace, String key, String enUs, String zhCn) {
+        addLangEnUsAndZhCnTxt(namespace, enUs, zhCn, (langSet, txt) -> langSet.add(key, txt));
+        return key;
+    }
+
     public static void addLangTxt(String namespace, String lang, String txt, BiConsumer<LangSet, String> unaryOperator) {
         if (LangHandler.isDataGen()) {
             unaryOperator.accept(LangHandler.getLang(namespace, lang), txt);
@@ -95,6 +105,18 @@ public class LangHandler {
 
         public void entityTypeText(Supplier<? extends EntityType<?>> supplier, String txt) {
             entityTypes.put(supplier, txt);
+        }
+
+        @Override
+        public String toString() {
+            return mobEffects + "\n"
+                    + attributes + "\n"
+                    + soundEvents + "\n"
+                    + items + "\n"
+                    + blocks + "\n"
+                    + entityTypes + "\n"
+                    + tagKeys + "\n"
+                    + map;
         }
     }
 }

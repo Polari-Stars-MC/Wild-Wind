@@ -111,6 +111,7 @@ ext.configureNeoForge = { String modId,
             }
             data {
                 clientData()
+                serverData()
                 programArguments.addAll '--mod', modId, '--all', '--output',
                         file(generatedResources).getAbsolutePath(), '--existing',
                         file(existingResources).getAbsolutePath()

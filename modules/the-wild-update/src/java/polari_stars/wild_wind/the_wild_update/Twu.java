@@ -1,24 +1,30 @@
-package polari_stars.wild_wind.lib;
+package polari_stars.wild_wind.the_wild_update;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
-import polari_stars.wild_wind.lib.registry.LibCreativeModeTabs;
 
-@Mod(WildWindLib.MODID)
-public class WildWindLib {
-    public static final String MODID = "wild_wind_lib";
+import com.mojang.logging.LogUtils;
+
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;
+import polari_stars.wild_wind.the_wild_update.registry.entity.TwuSensorTypes;
+import polari_stars.wild_wind.the_wild_update.registry.entity.TwuEntityTypes;
+import polari_stars.wild_wind.the_wild_update.registry.tag.TwuTags;
+
+@Mod(Twu.MODID)
+public class Twu {
+    public static final String MODID = "wild_wind_the_wild_update";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public WildWindLib(IEventBus modEventBus, ModContainer modContainer) {
-        LibCreativeModeTabs.init(modEventBus);
+    public Twu(IEventBus modEventBus, ModContainer modContainer) {
+        TwuTags.init();
+        TwuSensorTypes.init(modEventBus);
+        TwuEntityTypes.init(modEventBus);
     }
 
     public static Identifier namespace(String path) {
@@ -41,3 +47,4 @@ public class WildWindLib {
         return type(Identifier.fromNamespaceAndPath(MODID, identifier));
     }
 }
+

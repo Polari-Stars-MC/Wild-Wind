@@ -7,9 +7,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(value = LanguageProvider.class, remap = false)
 public interface LanguageProviderAccessor {
-    @Accessor
-    String getLocale();
+    @Accessor("locale")
+    String wild_wind$getLocale();
 
-    @Accessor
-    PackOutput getOutput();
+    @Accessor("output")
+    PackOutput wild_wind$getOutput();
 }

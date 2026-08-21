@@ -8,8 +8,8 @@ import polari_stars.wild_wind.lib.datagen.lang.LangHandler;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public class LibItems {
-    public static <I extends Item> DeferredItem<I> register(
+public interface LibItems {
+    static <I extends Item> DeferredItem<I> register(
             DeferredRegister.Items register,
             String name, String enUs, String zhCn,
             Function<Item.Properties, ? extends I> func, UnaryOperator<Item.Properties> properties
@@ -20,7 +20,7 @@ public class LibItems {
         return holder;
     }
 
-    public static <I extends Item> DeferredItem<I> register(
+    static <I extends Item> DeferredItem<I> register(
             DeferredRegister.Items register,
             String name, String enUs, String zhCn,
             Function<Item.Properties, ? extends I> func

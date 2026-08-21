@@ -93,7 +93,7 @@ public class BasicLangDatagen extends LanguageProvider {
     }
 
     public String getLocale() {
-        return ((LanguageProviderAccessor) this).getLocale();
+        return ((LanguageProviderAccessor) this).wild_wind$getLocale();
     }
 
     protected void addPackDescription(String a, String description) {

@@ -9,8 +9,8 @@ import polari_stars.wild_wind.lib.datagen.lang.LangHandler;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public class LibBlocks {
-    public static <B extends Block> DeferredBlock<B> register(
+public interface LibBlocks {
+    static <B extends Block> DeferredBlock<B> register(
             DeferredRegister.Blocks register,
             String name, String enUs, String zhCn,
             Function<BlockBehaviour.Properties, ? extends B> func,
@@ -22,7 +22,7 @@ public class LibBlocks {
         return holder;
     }
 
-    public static <B extends Block> DeferredBlock<B> register(
+    static <B extends Block> DeferredBlock<B> register(
             DeferredRegister.Blocks register,
             String name, String enUs, String zhCn,
             Function<BlockBehaviour.Properties, ? extends B> func

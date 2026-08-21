@@ -1,0 +1,15 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:and",
+    "values": [
+      "#c:is_swamp"
+    ]
+  },
+  "spawners": {
+    "type": "wild_wind_the_wild_update:mudcrab",
+    "maxCount": 2,
+    "minCount": 1,
+    "weight": 100
+  }
+}
