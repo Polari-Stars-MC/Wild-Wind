@@ -16,7 +16,8 @@ public interface LibCreativeModeTabs {
 
     DeferredHolder<CreativeModeTab, CreativeModeTab> WILD_WIND = register(REGISTER,
             "wild_wind", "Wild Wind", "原野之风", builder -> builder,
-            (parameters, output) -> {});
+            (parameters, output) -> {
+            });
 
     static void init(IEventBus iEventBus) {
         REGISTER.register(iEventBus);

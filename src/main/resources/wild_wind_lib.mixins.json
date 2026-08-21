@@ -3,6 +3,8 @@
   "package": "polari_stars.wild_wind.lib.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "SpawnEggItemMixin",
+    "accessor.CreativeModeTabAccessor",
     "accessor.LanguageProviderAccessor"
   ],
   "injectors": {

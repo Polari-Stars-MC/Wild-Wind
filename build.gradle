@@ -18,7 +18,7 @@ var modName = libs.versions.libName.get()
 var modLicense = libs.versions.modLicense.get()
 
 configureWrapper()
-configureProjectIdentity(neoforgeVersion, libs.versions.libGroupId.get())
+configureProjectIdentity(libVersion, libs.versions.libGroupId.get())
 configureGeneratedResources('src/generated/resources')
 
 configureBase(modId)

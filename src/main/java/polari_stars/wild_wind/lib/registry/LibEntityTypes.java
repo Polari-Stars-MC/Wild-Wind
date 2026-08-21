@@ -13,6 +13,14 @@ public interface LibEntityTypes {
     static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
             DeferredRegister.Entities register,
             String name, String enUs, String zhCn,
+            EntityType.EntityFactory<T> factory, MobCategory category
+    ) {
+        return register(register, name, enUs, zhCn, factory, category, UnaryOperator.identity());
+    }
+
+    static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
+            DeferredRegister.Entities register,
+            String name, String enUs, String zhCn,
             EntityType.EntityFactory<T> factory,
             MobCategory category, UnaryOperator<EntityType.Builder<T>> builder
     ) {
@@ -20,13 +28,5 @@ public interface LibEntityTypes {
         LangHandler.addLangEnUsAndZhCnTxt(register.getNamespace(), enUs, zhCn,
                 (langSet, txt) -> langSet.entityTypeText(holder, txt));
         return holder;
-    }
-
-    static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(
-            DeferredRegister.Entities register,
-            String name, String enUs, String zhCn,
-            EntityType.EntityFactory<T> factory, MobCategory category
-    ) {
-        return register(register, name, enUs, zhCn, factory, category, UnaryOperator.identity());
     }
 }

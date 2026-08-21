@@ -14,6 +14,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
 import polari_stars.wild_wind.the_wild_update.registry.entity.TwuSensorTypes;
 import polari_stars.wild_wind.the_wild_update.registry.entity.TwuEntityTypes;
+import polari_stars.wild_wind.the_wild_update.registry.item.TwuDataComponentTypes;
+import polari_stars.wild_wind.the_wild_update.registry.item.TwuItems;
 import polari_stars.wild_wind.the_wild_update.registry.tag.TwuTags;
 
 @Mod(Twu.MODID)
@@ -24,7 +26,9 @@ public class Twu {
     public Twu(IEventBus modEventBus, ModContainer modContainer) {
         TwuTags.init();
         TwuSensorTypes.init(modEventBus);
+        TwuDataComponentTypes.init(modEventBus);
         TwuEntityTypes.init(modEventBus);
+        TwuItems.init(modEventBus);
     }
 
     public static Identifier namespace(String path) {

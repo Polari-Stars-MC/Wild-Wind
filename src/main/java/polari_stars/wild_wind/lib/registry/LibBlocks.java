@@ -13,6 +13,14 @@ public interface LibBlocks {
     static <B extends Block> DeferredBlock<B> register(
             DeferredRegister.Blocks register,
             String name, String enUs, String zhCn,
+            Function<BlockBehaviour.Properties, ? extends B> func
+    ) {
+        return register(register, name, enUs, zhCn, func, UnaryOperator.identity());
+    }
+
+    static <B extends Block> DeferredBlock<B> register(
+            DeferredRegister.Blocks register,
+            String name, String enUs, String zhCn,
             Function<BlockBehaviour.Properties, ? extends B> func,
             UnaryOperator<BlockBehaviour.Properties> properties
     ) {
@@ -20,13 +28,5 @@ public interface LibBlocks {
         LangHandler.addLangEnUsAndZhCnTxt(register.getNamespace(), enUs, zhCn,
                 (langSet, txt) -> langSet.blockText(holder, txt));
         return holder;
-    }
-
-    static <B extends Block> DeferredBlock<B> register(
-            DeferredRegister.Blocks register,
-            String name, String enUs, String zhCn,
-            Function<BlockBehaviour.Properties, ? extends B> func
-    ) {
-        return register(register, name, enUs, zhCn, func, UnaryOperator.identity());
     }
 }

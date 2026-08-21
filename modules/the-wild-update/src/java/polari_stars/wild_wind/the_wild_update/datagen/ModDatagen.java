@@ -27,6 +27,7 @@ public class ModDatagen {
         build(event, output -> new BasicLangDatagen(output, modid, LangHandler.EN_US));
         build(event, output -> new BasicLangDatagen(output, modid, LangHandler.ZH_CN));
         build(event, ParticleDatagen::new);
+        build(event, ItemModelProvider::new);
     }
 
     @SubscribeEvent

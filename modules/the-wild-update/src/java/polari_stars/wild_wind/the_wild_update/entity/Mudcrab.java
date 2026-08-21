@@ -3,11 +3,17 @@ package polari_stars.wild_wind.the_wild_update.entity;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.object.PlayState;
 import com.geckolib.util.GeckoLibUtil;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -25,10 +31,12 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -38,9 +46,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 import polari_stars.wild_wind.the_wild_update.registry.entity.TwuSensorTypes;
 import polari_stars.wild_wind.the_wild_update.registry.entity.TwuEntityTypes;
+import polari_stars.wild_wind.the_wild_update.registry.item.TwuDataComponentTypes;
 import polari_stars.wild_wind.the_wild_update.registry.tag.TwuBiomeTags;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
@@ -53,6 +63,7 @@ import java.util.function.Predicate;
 /// 泥沼蟹
 /// https://lcnmjxmuyybr.feishu.cn/wiki/VVAsw5qAeiyyzRku29acGUTmnMd
 public class Mudcrab extends Animal implements Bucketable, GeoEntity {
+    /// 最大生命值
     public static final double MAX_HEALTH = 10.0;
     /// 最大湿润值
     public static final int MOISTURE_MAX_VALUE = 20 * 60 * 6;
@@ -82,6 +93,18 @@ public class Mudcrab extends Animal implements Bucketable, GeoEntity {
                     SensorType.FOOD_TEMPTATIONS),
             var0 -> MudcrabAi.getActivities()
     );
+    // 动画
+    public static final String HIT = "hit";
+    public static final String WAVE = "wave";
+    public static final String STANDBY = "standby";
+    public static final String SWIM = "swim";
+    public static final String MOVE = "move";
+    public static final String ATTACK = "attack";
+    // nbt
+    public static final String VARIANT_KEY = "Variant";
+    public static final String FROM_BUCKET_KEY = "FromBucket";
+    public static final String MOISTNESS_KEY = "Moistness";
+
     /// 变体值
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Mudcrab.class, EntityDataSerializers.INT);
     /// 是否是从桶中来
@@ -147,6 +170,7 @@ public class Mudcrab extends Animal implements Bucketable, GeoEntity {
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        triggerAnim(null, HIT);
         return super.hurtServer(level, source, damage);
     }
 
@@ -181,25 +205,47 @@ public class Mudcrab extends Animal implements Bucketable, GeoEntity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         super.defineSynchedData(entityData);
-        entityData.define(DATA_VARIANT, Variant.DEFAULT.id);
+        entityData.define(DATA_VARIANT, Variant.DEFAULT.getId());
         entityData.define(FROM_BUCKET, false);
         entityData.define(MOISTNESS_LEVEL, MOISTURE_MAX_VALUE);
     }
 
     @Override
+    public @Nullable <T> T get(DataComponentType<? extends T> type) {
+        return type == TwuDataComponentTypes.MUDCRAB_VARIANT.get() ?
+                castComponentValue((DataComponentType<T>) type, this.getVariant()) : super.get(type);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        this.applyImplicitComponentIfPresent(components, TwuDataComponentTypes.MUDCRAB_VARIANT.get());
+        super.applyImplicitComponents(components);
+    }
+
+    @Override
+    protected <T> boolean applyImplicitComponent(DataComponentType<T> type, T value) {
+        if (type == TwuDataComponentTypes.MUDCRAB_VARIANT.get()) {
+            this.setVariant(castComponentValue(TwuDataComponentTypes.MUDCRAB_VARIANT.get(), value));
+            return true;
+        } else {
+            return super.applyImplicitComponent(type, value);
+        }
+    }
+
+    @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.store("Variant", Variant.CODEC, this.getVariant());
-        output.putBoolean("FromBucket", this.fromBucket());
-        output.putInt("Moistness", this.getMoistnessLevel());
+        output.store(VARIANT_KEY, Variant.CODEC, this.getVariant());
+        output.putBoolean(FROM_BUCKET_KEY, this.fromBucket());
+        output.putInt(MOISTNESS_KEY, this.getMoistnessLevel());
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
-        this.setVariant(input.read("Variant", Variant.CODEC).orElse(Variant.DEFAULT));
-        this.setFromBucket(input.getBooleanOr("FromBucket", false));
-        this.setMoisntessLevel(input.getIntOr("Moistness", 2400));
+        this.setVariant(input.read(VARIANT_KEY, Variant.CODEC).orElse(Variant.DEFAULT));
+        this.setFromBucket(input.getBooleanOr(FROM_BUCKET_KEY, false));
+        this.setMoisntessLevel(input.getIntOr(MOISTNESS_KEY, 2400));
     }
 
     @Override
@@ -252,12 +298,27 @@ public class Mudcrab extends Animal implements Bucketable, GeoEntity {
 
     @Override
     public void saveToBucketTag(ItemStack bucket) {
-
+        Bucketable.saveDefaultDataToBucketTag(this, bucket);
+        bucket.copyFrom(TwuDataComponentTypes.MUDCRAB_VARIANT.get(), this);
+        CustomData.update(DataComponents.BUCKET_ENTITY_DATA, bucket, tag -> {
+            tag.putInt("Age", this.getAge());
+            tag.putBoolean("AgeLocked", this.isAgeLocked());
+            Brain<?> brain = this.getBrain();
+            if (brain.hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)) {
+                tag.putLong("HuntingCooldown", brain.getTimeUntilExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN));
+            }
+        });
     }
 
     @Override
     public void loadFromBucketTag(CompoundTag tag) {
-
+        Bucketable.loadDefaultDataFromBucketTag(this, tag);
+        this.setAge(tag.getIntOr("Age", 0));
+        this.setAgeLocked(tag.getBooleanOr("AgeLocked", false));
+        tag.getLong("HuntingCooldown").ifPresentOrElse(
+                huntingCooldown -> this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, tag.getLongOr("HuntingCooldown", 0L)),
+                () -> this.getBrain().setMemory(MemoryModuleType.HAS_HUNTING_COOLDOWN, Optional.empty())
+        );
     }
 
     @Override
@@ -274,7 +335,22 @@ public class Mudcrab extends Animal implements Bucketable, GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-
+        var defaultController = new AnimationController<Mudcrab>(animationTest -> {
+            var controller = animationTest.controller();
+            if (animationTest.isMoving()) {
+                controller.triggerAnimation(MOVE);
+            } else {
+                controller.triggerAnimation(STANDBY);
+            }
+            return PlayState.CONTINUE;
+        });
+        defaultController.triggerableAnim(ATTACK, RawAnimation.begin().thenPlay(ATTACK));
+        defaultController.triggerableAnim(MOVE, RawAnimation.begin().thenPlay(MOVE));
+        defaultController.triggerableAnim(SWIM, RawAnimation.begin().thenPlay(SWIM));
+        defaultController.triggerableAnim(STANDBY, RawAnimation.begin().thenPlay(STANDBY));
+        defaultController.triggerableAnim(WAVE, RawAnimation.begin().thenPlay(WAVE));
+        defaultController.triggerableAnim(HIT, RawAnimation.begin().thenPlay(HIT));
+        controllers.add(defaultController);
     }
 
     @Override

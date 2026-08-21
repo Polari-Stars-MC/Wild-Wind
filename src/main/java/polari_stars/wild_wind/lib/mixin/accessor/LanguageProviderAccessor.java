@@ -5,7 +5,7 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value = LanguageProvider.class, remap = false)
+@Mixin(LanguageProvider.class)
 public interface LanguageProviderAccessor {
     @Accessor("locale")
     String wild_wind$getLocale();

@@ -116,6 +116,18 @@ ext.configureNeoForge = { String modId,
                         file(generatedResources).getAbsolutePath(), '--existing',
                         file(existingResources).getAbsolutePath()
             }
+            clientData {
+                clientData()
+                programArguments.addAll '--mod', modId, '--all', '--output',
+                        file(generatedResources).getAbsolutePath(), '--existing',
+                        file(existingResources).getAbsolutePath()
+            }
+            serverData {
+                serverData()
+                programArguments.addAll '--mod', modId, '--all', '--output',
+                        file(generatedResources).getAbsolutePath(), '--existing',
+                        file(existingResources).getAbsolutePath()
+            }
             configureEach {
                 systemProperty 'forge.logging.markers', 'REGISTRIES'
                 logLevel = org.slf4j.event.Level.DEBUG

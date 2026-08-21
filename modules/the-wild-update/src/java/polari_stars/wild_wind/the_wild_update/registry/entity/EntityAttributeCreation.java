@@ -13,9 +13,4 @@ public class EntityAttributeCreation {
     public static void registry(EntityAttributeCreationEvent event) {
         event.put(TwuEntityTypes.MUDCRAB.get(), Mudcrab.createAttributes().build());
     }
-
-    @SubscribeEvent
-    public void onGeoReplacedEntityPreRender(EntityRenderersEvent.RegisterRenderers event) {
-    }
-
 }

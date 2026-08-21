@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "wild_wind_the_wild_update:item/mudcrab/mudcrab_spawn_egg"
+  }
+}
